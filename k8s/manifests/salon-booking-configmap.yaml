@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: salon-booking-config
+  labels:
+    app: salon-booking
+data:
+  # Configurações do banco de dados
+  db-host: "postgres-service"  # Nome do service do PostgreSQL
+  db-port: "5432"
+  db-name: "salon_booking"
+  
+  # Configurações da aplicação
+  app-name: "Salon Booking"
+  app-version: "1.0.0"
+  
+  # Configurações de logging
+  log-level: "info"
+  
+  # Configurações de CORS (se necessário)
+  cors-origin: "*"

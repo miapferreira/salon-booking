@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: salon-booking-service
+  labels:
+    app: salon-booking
+    component: backend
+spec:
+  type: ClusterIP  # Apenas comunicação interna - Ingress fará exposição externa
+  selector:
+    app: salon-booking
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  # Configurações de sessão (opcional para aplicações stateful)
+  sessionAffinity: None

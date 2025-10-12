@@ -1,0 +1,437 @@
+/* Reset básico - remove estilos padrão do navegador */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilos do corpo da página */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Container principal */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+/* Título principal */
+h1 {
+    background: linear-gradient(45deg, #2e7d32, #4caf50);
+    color: white;
+    text-align: center;
+    padding: 30px;
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    border-radius: 10px 10px 0 0;
+}
+
+/* Seções do formulário, calendário e lista */
+.form-section,
+.calendar-section,
+.list-section {
+    padding: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-section {
+    background: #f8f9fa;
+}
+
+/* Títulos das seções */
+h2 {
+    color: #2e7d32;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    border-bottom: 3px solid #4caf50;
+    padding-bottom: 10px;
+}
+
+/* Formulário */
+form {
+    display: grid;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #2e7d32;
+}
+
+input,
+select {
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #4caf50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* Botão do formulário */
+button[type="submit"] {
+    background: linear-gradient(45deg, #4caf50, #2e7d32);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button[type="submit"]:hover {
+    background: linear-gradient(45deg, #2e7d32, #1b5e20);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+/* Lista de agendamentos */
+.agendamento-item {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.agendamento-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.agendamento-item h3 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.agendamento-item p {
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.agendamento-item strong {
+    color: #2e7d32;
+}
+
+/* Botão de remover */
+.btn-remover {
+    background: #e74c3c;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-remover:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+/* Responsividade - adapta para celulares */
+@media (max-width: 600px) {
+    .container {
+        margin: 10px;
+        border-radius: 5px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        padding: 20px;
+    }
+    
+    .form-section,
+    .list-section {
+        padding: 20px;
+    }
+    
+    form {
+        gap: 15px;
+    }
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.agendamento-item {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ===== ESTILOS DO CALENDÁRIO ===== */
+
+.calendar-section {
+    background: #f8f9fa;
+}
+
+.calendar-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(45deg, #4caf50, #2e7d32);
+    color: white;
+}
+
+.calendar-nav {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    padding: 10px 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar-nav:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+#currentMonth {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #e0e0e0;
+    padding: 1px;
+}
+
+.calendar-day {
+    background: white;
+    padding: 15px 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background: #e8f5e8;
+}
+
+.calendar-day.other-month {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.calendar-day.today {
+    background: #4caf50;
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.has-appointments {
+    background: #c8e6c9;
+    border-left: 4px solid #4caf50;
+}
+
+.calendar-day.has-appointments:hover {
+    background: #a5d6a7;
+}
+
+.calendar-day-number {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.calendar-appointments {
+    font-size: 0.7rem;
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.calendar-day.today .calendar-appointments {
+    color: white;
+}
+
+.calendar-day.has-appointments .calendar-appointments {
+    color: #1b5e20;
+}
+
+/* Dias da semana */
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #4caf50;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.calendar-weekdays div {
+    padding: 10px;
+}
+
+/* Responsividade do calendário */
+@media (max-width: 768px) {
+    .calendar-day {
+        padding: 10px 2px;
+        min-height: 50px;
+        font-size: 0.9rem;
+    }
+    
+    .calendar-day-number {
+        font-size: 0.9rem;
+    }
+    
+    .calendar-appointments {
+        font-size: 0.6rem;
+    }
+}
+
+/* ===== RODAPÉ ===== */
+
+.footer {
+    background: #2e7d32;
+    color: white;
+    padding: 25px 0;
+    margin-top: 30px;
+    border-radius: 0 0 10px 10px;
+    border-top: 3px solid #4caf50;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #c8e6c9;
+}
+
+.footer-info strong {
+    color: white;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.footer-links a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.footer-links a span {
+    font-size: 1rem;
+}
+
+/* Responsividade do rodapé */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .footer-links {
+        justify-content: center;
+    }
+    
+    .footer-links a {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+}

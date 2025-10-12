@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+spec:
+  acme:
+    # Servidor Let's Encrypt de produção (certificados válidos)
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # ⚠️ ALTERE para seu email
+    email: mi.apferreira@gmail.com
+    # Nome do secret para armazenar a chave privada da conta
+    privateKeySecretRef:
+      name: letsencrypt-production
+    # Configuração do solver HTTP01 para validação
+    solvers:
+    - http01:
+        ingress:
+          class: nginx

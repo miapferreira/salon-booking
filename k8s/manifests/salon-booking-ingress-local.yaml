@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: salon-booking-ingress-local
+  labels:
+    app: salon-booking
+  annotations:
+    # Para testes locais - sem TLS
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    
+    # Configurações de performance
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    
+    # Rewrite target
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  # IngressClass (método novo, substitui annotation)
+  ingressClassName: nginx
+  # Sem TLS para testes locais
+  rules:
+  - host: salon-booking.local  # Para testes locais
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: salon-booking-service
+            port:
+              number: 80

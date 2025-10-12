@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: salon-booking
+  annotations:
+    config.kubernetes.io/local-config: "true"
+
+resources:
+  # Certificados
+  - cert/production-issuer.yaml
+  - cert/staging-issuer.yaml
+  
+  # Configurações
+  - manifests/salon-booking-configmap.yaml
+  - manifests/salon-booking-secrets.yaml
+  
+  # Banco de dados
+  - manifests/postgres-pvc.yaml
+  - manifests/postgres-deployment.yaml
+  - manifests/postgres-service.yaml
+  
+  # Aplicação principal
+  - manifests/salon-booking-deployment.yaml
+  - manifests/salon-booking-service.yaml
+  - manifests/salon-booking-ingress.yaml
+
+namespace: default
+
+commonLabels:
+  app.kubernetes.io/name: salon-booking
+  app.kubernetes.io/version: "1.0.0"
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/created-by: michel-ferreira

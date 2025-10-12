@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salon Booking - Sistema de Agendamento</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💇‍♀️ Salon Booking</h1>
+        
+        <!-- Formulário para novo agendamento -->
+        <div class="form-section">
+            <h2>Novo Agendamento</h2>
+            <form id="agendamentoForm">
+                <div class="form-group">
+                    <label for="nomeCliente">Nome do Cliente:</label>
+                    <input type="text" id="nomeCliente" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefone">Telefone:</label>
+                    <input type="tel" id="telefone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="data">Data:</label>
+                    <input type="date" id="data" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="horario">Horário:</label>
+                    <input type="time" id="horario" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="servico">Serviço:</label>
+                    <select id="servico" required>
+                        <option value="">Selecione um serviço</option>
+                        <option value="corte">Corte de Cabelo</option>
+                        <option value="escova">Escova</option>
+                        <option value="coloring">Coloração</option>
+                        <option value="manicure">Manicure</option>
+                        <option value="pedicure">Pedicure</option>
+                        <option value="maquiagem">Maquiagem</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Agendar</button>
+            </form>
+        </div>
+        
+        <!-- Calendário -->
+        <div class="calendar-section">
+            <h2>📅 Calendário de Agendamentos</h2>
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prevMonth" class="calendar-nav">‹</button>
+                    <h3 id="currentMonth"></h3>
+                    <button id="nextMonth" class="calendar-nav">›</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- O calendário será gerado dinamicamente aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de agendamentos -->
+        <div class="list-section">
+            <h2>📋 Lista de Agendamentos</h2>
+            <div id="listaAgendamentos">
+                <p>Nenhum agendamento encontrado.</p>
+            </div>
+        </div>
+        
+        <!-- Rodapé -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2024 Salon Booking. Desenvolvido por <strong>Michel Ferreira</strong></p>
+                </div>
+                <div class="footer-links">
+                    <a href="mailto:mi.apferreira@gmail.com" title="Enviar email">
+                        <span>📧</span> Contato
+                    </a>
+                    <a href="https://github.com/miapferreira" target="_blank" title="Ver código no GitHub">
+                        <span>💻</span> GitHub
+                    </a>
+                    <a href="https://www.linkedin.com/in/michelapferreira/" target="_blank" title="LinkedIn">
+                        <span>💼</span> LinkedIn
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Importa o arquivo JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
