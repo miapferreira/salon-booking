@@ -1,0 +1,62 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: salon-booking-hpa
+  labels:
+    app: salon-booking
+    component: autoscaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: salon-booking
+  
+  # Configurações de escala
+  minReplicas: 2
+  maxReplicas: 10
+  
+  # Métricas de escala
+  metrics:
+  # Escala baseada em CPU
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  
+  # Escala baseada em Memory
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75
+  
+  # Escala baseada em RPS (Requests Per Second)
+  - type: Pods
+    pods:
+      metric:
+        name: nginx_ingress_controller_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "10"  # 10 requisições por segundo por pod
+  
+  # Comportamento de escala
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # 5 minutos para estabilizar
+      policies:
+      - type: Percent
+        value: 10  # Reduzir no máximo 10% por vez
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60   # 1 minuto para escalar
+      policies:
+      - type: Percent
+        value: 50  # Aumentar até 50% por vez
+        periodSeconds: 60
+      - type: Pods
+        value: 2   # Ou adicionar 2 pods por vez
+        periodSeconds: 60
+      selectPolicy: Max  # Usar a política mais agressiva

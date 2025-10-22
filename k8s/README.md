@@ -64,13 +64,17 @@ k8s/
 │   ├── salon-booking-configmap.yaml     # Configurações
 │   ├── salon-booking-secrets.yaml       # Dados sensíveis
 │   ├── salon-booking-ingress.yaml       # Ingress com TLS
+│   ├── salon-booking-hpa.yaml          # Horizontal Pod Autoscaler
 │   ├── postgres-deployment.yaml         # Deployment PostgreSQL
 │   ├── postgres-service.yaml            # Service PostgreSQL
-│   └── postgres-pvc.yaml                # Armazenamento PostgreSQL
+│   ├── postgres-pvc.yaml                # Armazenamento PostgreSQL
+│   └── postgres-init-script.yaml        # Script de inicialização do banco
 ├── cert/                         # Certificados TLS
 │   ├── production-issuer.yaml           # Let's Encrypt Produção
 │   └── staging-issuer.yaml              # Let's Encrypt Staging
+├── test-hpa.sh                   # Script de teste HPA
 ├── deploy.sh                     # Script de deploy automatizado
+├── kustomization.yaml            # Kustomize configuration
 └── README.md                     # Esta documentação
 ```
 
@@ -353,11 +357,40 @@ eksctl delete cluster --name eks-cluster --region us-east-1
 - [Amazon EKS Documentation](https://docs.aws.amazon.com/eks/)
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 
+## 🚀 **Horizontal Pod Autoscaler (HPA)**
+
+O sistema inclui configuração de HPA para autoscaling baseado em CPU, Memory e RPS:
+
+```bash
+# Aplicar HPA
+kubectl apply -f manifests/salon-booking-hpa.yaml
+
+# Monitorar HPA
+kubectl get hpa salon-booking-hpa -w
+```
+
+## 🌐 **Teste Local com Port Forward**
+
+Para testar localmente sem Ingress Controller:
+
+```bash
+# Port forward do Service ClusterIP
+kubectl port-forward service/salon-booking-service 8080:80
+
+# Testar API
+curl http://localhost:8080/api/health
+
+# Acessar no navegador
+# http://localhost:8080
+```
+
+**Nota:** Com Kind, NodePort não expõe automaticamente no localhost. Use port-forward do Service ClusterIP.
+
 ## 🎯 Próximos Passos
 
+- [x] Configurar auto-scaling horizontal (HPA)
 - [ ] Configurar monitoring com Prometheus/Grafana
 - [ ] Implementar backup automático do PostgreSQL
-- [ ] Configurar auto-scaling horizontal
 - [ ] Implementar CI/CD com GitHub Actions
 - [ ] Configurar logging centralizado
 - [ ] Implementar health checks avançados
