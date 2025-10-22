@@ -5,97 +5,214 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salon Booking - Sistema de Agendamento</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>💇‍♀️ Salon Booking</h1>
-        
-        <!-- Formulário para novo agendamento -->
-        <div class="form-section">
-            <h2>Novo Agendamento</h2>
-            <form id="agendamentoForm">
-                <div class="form-group">
-                    <label for="nomeCliente">Nome do Cliente:</label>
-                    <input type="text" id="nomeCliente" required>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-cut"></i>
+                    <h1>Salon Booking</h1>
                 </div>
-                
-                <div class="form-group">
-                    <label for="telefone">Telefone:</label>
-                    <input type="tel" id="telefone" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="data">Data:</label>
-                    <input type="date" id="data" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="horario">Horário:</label>
-                    <input type="time" id="horario" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="servico">Serviço:</label>
-                    <select id="servico" required>
-                        <option value="">Selecione um serviço</option>
-                        <option value="corte">Corte de Cabelo</option>
-                        <option value="escova">Escova</option>
-                        <option value="coloring">Coloração</option>
-                        <option value="manicure">Manicure</option>
-                        <option value="pedicure">Pedicure</option>
-                        <option value="maquiagem">Maquiagem</option>
-                    </select>
-                </div>
-                
-                <button type="submit">Agendar</button>
-            </form>
-        </div>
-        
-        <!-- Calendário -->
-        <div class="calendar-section">
-            <h2>📅 Calendário de Agendamentos</h2>
-            <div class="calendar-container">
-                <div class="calendar-header">
-                    <button id="prevMonth" class="calendar-nav">‹</button>
-                    <h3 id="currentMonth"></h3>
-                    <button id="nextMonth" class="calendar-nav">›</button>
-                </div>
-                <div class="calendar-grid" id="calendarGrid">
-                    <!-- O calendário será gerado dinamicamente aqui -->
-                </div>
+                <nav class="nav">
+                    <a href="#agendar" class="nav-link active">
+                        <i class="fas fa-plus"></i>
+                        Agendar
+                    </a>
+                    <a href="#calendario" class="nav-link">
+                        <i class="fas fa-calendar"></i>
+                        Calendário
+                    </a>
+                    <a href="#agendamentos" class="nav-link">
+                        <i class="fas fa-list"></i>
+                        Lista
+                    </a>
+                </nav>
             </div>
         </div>
+    </header>
 
-        <!-- Lista de agendamentos -->
-        <div class="list-section">
-            <h2>📋 Lista de Agendamentos</h2>
-            <div id="listaAgendamentos">
-                <p>Nenhum agendamento encontrado.</p>
-            </div>
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h2>Gerencie seus agendamentos com facilidade</h2>
+                    <p>Sistema completo para gerenciamento de agendamentos de salão de beleza</p>
+                </div>
+            </section>
+
+            <!-- Form Section -->
+            <section id="agendar" class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-plus-circle"></i> Novo Agendamento</h3>
+                    <p>Preencha os dados para criar um novo agendamento</p>
+                </div>
+                
+                <div class="card">
+                    <form id="agendamentoForm" class="form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nomeCliente">
+                                    <i class="fas fa-user"></i>
+                                    Nome do Cliente
+                                </label>
+                                <input type="text" id="nomeCliente" placeholder="Digite o nome completo" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="telefone">
+                                    <i class="fas fa-phone"></i>
+                                    Telefone
+                                </label>
+                                <input type="tel" id="telefone" placeholder="(11) 99999-9999" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="data">
+                                    <i class="fas fa-calendar-day"></i>
+                                    Data
+                                </label>
+                                <input type="date" id="data" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="horario">
+                                    <i class="fas fa-clock"></i>
+                                    Horário
+                                </label>
+                                <input type="time" id="horario" required>
+                            </div>
+                            
+                            <div class="form-group form-group-full">
+                                <label for="servico">
+                                    <i class="fas fa-spa"></i>
+                                    Serviço
+                                </label>
+                                <select id="servico" required>
+                                    <option value="">Selecione um serviço</option>
+                                    <option value="Corte de Cabelo">Corte de Cabelo</option>
+                                    <option value="Escova">Escova</option>
+                                    <option value="Coloração">Coloração</option>
+                                    <option value="Manicure">Manicure</option>
+                                    <option value="Pedicure">Pedicure</option>
+                                    <option value="Maquiagem">Maquiagem</option>
+                                    <option value="Tratamento">Tratamento</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i>
+                            Criar Agendamento
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Calendar Section -->
+            <section id="calendario" class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Calendário de Agendamentos</h3>
+                    <p>Visualize todos os agendamentos em formato de calendário</p>
+                </div>
+                
+                <div class="card">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button id="prevMonth" class="btn btn-icon">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h4 id="currentMonth"></h4>
+                            <button id="nextMonth" class="btn btn-icon">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- List Section -->
+            <section id="agendamentos" class="section">
+                <div class="section-header">
+                    <h3><i class="fas fa-list"></i> Lista de Agendamentos</h3>
+                    <p>Todos os agendamentos cadastrados no sistema</p>
+                </div>
+                
+                <div class="card">
+                    <div id="listaAgendamentos" class="agendamentos-list">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-plus"></i>
+                            <h4>Nenhum agendamento encontrado</h4>
+                            <p>Crie seu primeiro agendamento usando o formulário acima</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
-        
-        <!-- Rodapé -->
-        <footer class="footer">
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <p>&copy; 2024 Salon Booking. Desenvolvido por <strong>Michel Ferreira</strong></p>
+                    <div class="footer-logo">
+                        <i class="fas fa-cut"></i>
+                        <span>Salon Booking</span>
+                    </div>
+                    <p>Sistema de agendamento desenvolvido com as melhores práticas de desenvolvimento</p>
                 </div>
+                
                 <div class="footer-links">
-                    <a href="mailto:mi.apferreira@gmail.com" title="Enviar email">
-                        <span>📧</span> Contato
-                    </a>
-                    <a href="https://github.com/miapferreira" target="_blank" title="Ver código no GitHub">
-                        <span>💻</span> GitHub
-                    </a>
-                    <a href="https://www.linkedin.com/in/michelapferreira/" target="_blank" title="LinkedIn">
-                        <span>💼</span> LinkedIn
-                    </a>
+                    <div class="footer-section">
+                        <h5>Desenvolvedor</h5>
+                        <p><strong>Michel Ferreira</strong></p>
+                        <p>SRE/DevOps Engineer</p>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h5>Contato</h5>
+                        <a href="mailto:mi.apferreira@gmail.com">
+                            <i class="fas fa-envelope"></i>
+                            mi.apferreira@gmail.com
+                        </a>
+                        <a href="https://github.com/miapferreira" target="_blank">
+                            <i class="fab fa-github"></i>
+                            GitHub
+                        </a>
+                        <a href="https://www.linkedin.com/in/michelapferreira/" target="_blank">
+                            <i class="fab fa-linkedin"></i>
+                            LinkedIn
+                        </a>
+                    </div>
                 </div>
             </div>
-        </footer>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Salon Booking. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Processando...</p>
+        </div>
     </div>
 
-    <!-- Importa o arquivo JavaScript -->
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <script src="script.js"></script>
 </body>
 </html>

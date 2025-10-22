@@ -1,329 +1,313 @@
-// Array para armazenar os agendamentos
-// Um array é como uma lista que pode crescer dinamicamente
+// ===== SALON BOOKING - MODERN FRONTEND =====
+// Sistema de agendamento com design moderno e UX otimizada
+// Desenvolvido por: Michel Ferreira - SRE/DevOps Engineer
+
+// ===== GLOBAL VARIABLES =====
 let agendamentos = [];
-
-// URL base da API (vai apontar para o backend)
 const API_BASE_URL = window.location.origin + '/api';
-
-// Variáveis do calendário
 let currentDate = new Date();
 let currentMonth = currentDate.getMonth();
 let currentYear = currentDate.getFullYear();
 
-// Função que é executada quando a página carrega
-// document.addEventListener significa "quando algo acontecer"
+// ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Sistema de agendamento carregado!');
+    console.log('🚀 Salon Booking System loaded!');
     
-    // Pega o formulário pelo ID e adiciona um "escutador" de eventos
-    const formulario = document.getElementById('agendamentoForm');
-    formulario.addEventListener('submit', criarAgendamento);
-    
-    // Carrega agendamentos salvos quando a página abre
-    carregarAgendamentos();
-    
-    // Inicializa o calendário
-    inicializarCalendario();
+    initializeApp();
+    setupNavigation();
+    setupEventListeners();
+    loadAgendamentos();
+    initializeCalendar();
 });
 
-/**
- * Função para criar um novo agendamento via API
- * @param {Event} event - O evento de submit do formulário
- */
-async function criarAgendamento(event) {
-    // Previne o comportamento padrão do formulário (recarregar a página)
-    event.preventDefault();
+// ===== APP INITIALIZATION =====
+function initializeApp() {
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('data').min = today;
     
-    console.log('Criando novo agendamento...');
+    // Set default time to next hour
+    const nextHour = new Date();
+    nextHour.setHours(nextHour.getHours() + 1);
+    document.getElementById('horario').value = nextHour.toTimeString().slice(0, 5);
     
-    // Pega os valores dos campos do formulário
-    // document.getElementById pega um elemento pelo seu ID
-    const nomeCliente = document.getElementById('nomeCliente').value;
-    const telefone = document.getElementById('telefone').value;
-    const data = document.getElementById('data').value;
-    const horario = document.getElementById('horario').value;
-    const servico = document.getElementById('servico').value;
-    
-    // Valida se todos os campos foram preenchidos
-    if (!nomeCliente || !telefone || !data || !horario || !servico) {
-        alert('Por favor, preencha todos os campos!');
-        return;
-    }
-    
-    // Cria um objeto representando o agendamento
-    // Um objeto é como um "recipiente" que guarda várias informações relacionadas
-    const novoAgendamento = {
-        nomeCliente: nomeCliente,
-        telefone: telefone,
-        data: data,
-        horario: horario,
-        servico: servico
-    };
-    
-    try {
-        // Faz requisição POST para a API
-        const response = await fetch(`${API_BASE_URL}/agendamentos`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(novoAgendamento)
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            console.log('Agendamento criado:', result);
-            
-            // Atualiza a lista na tela
-            await carregarAgendamentos();
-            
-            // Atualiza o calendário
-            renderizarCalendario();
-            
-            // Limpa o formulário
-            document.getElementById('agendamentoForm').reset();
-            
-            // Mostra mensagem de sucesso
-            alert('Agendamento criado com sucesso!');
-        } else {
-            // Se houve erro, mostra a mensagem
-            alert(`Erro: ${result.error}`);
-        }
-        
-    } catch (error) {
-        console.error('Erro ao criar agendamento:', error);
-        alert('Erro ao conectar com o servidor. Tente novamente.');
-    }
+    // Show loading state
+    showLoading(false);
 }
 
-/**
- * Função para exibir todos os agendamentos na tela
- */
-function exibirAgendamentos() {
-    const listaElement = document.getElementById('listaAgendamentos');
+// ===== NAVIGATION =====
+function setupNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
     
-    // Se não há agendamentos, mostra mensagem
-    if (agendamentos.length === 0) {
-        listaElement.innerHTML = '<p>Nenhum agendamento encontrado.</p>';
-        return;
-    }
-    
-    // Cria HTML para cada agendamento
-    // map() percorre o array e transforma cada elemento
-    let html = agendamentos.map(agendamento => {
-        return `
-            <div class="agendamento-item">
-                <h3>${agendamento.nome_cliente}</h3>
-                <p><strong>Telefone:</strong> ${agendamento.telefone}</p>
-                <p><strong>Data:</strong> ${formatarData(agendamento.data)}</p>
-                <p><strong>Horário:</strong> ${formatarHorario(agendamento.horario)}</p>
-                <p><strong>Serviço:</strong> ${agendamento.servico}</p>
-                <button onclick="removerAgendamento(${agendamento.id})" class="btn-remover">Remover</button>
-            </div>
-        `;
-    }).join(''); // join('') junta todas as strings em uma só
-    
-    listaElement.innerHTML = html;
-}
-
-/**
- * Função para remover um agendamento via API
- * @param {number} id - ID do agendamento a ser removido
- */
-async function removerAgendamento(id) {
-    // Confirma se o usuário realmente quer remover
-    if (confirm('Tem certeza que deseja remover este agendamento?')) {
-        try {
-            // Faz requisição DELETE para a API
-            const response = await fetch(`${API_BASE_URL}/agendamentos/${id}`, {
-                method: 'DELETE'
-            });
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
             
-            if (response.ok) {
-                console.log('Agendamento removido:', id);
-                // Atualiza a lista na tela
-                await carregarAgendamentos();
-                
-                // Atualiza o calendário
-                renderizarCalendario();
-            } else {
-                const result = await response.json();
-                alert(`Erro: ${result.error}`);
+            // Update active nav link
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            
+            // Scroll to section
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
-            
-        } catch (error) {
-            console.error('Erro ao remover agendamento:', error);
-            alert('Erro ao conectar com o servidor. Tente novamente.');
-        }
-    }
+        });
+    });
 }
 
-/**
- * Função para formatar a data para exibição
- * @param {string} data - Data no formato YYYY-MM-DD
- * @returns {string} Data formatada
- */
-function formatarData(data) {
-    try {
-        // Se a data já vem como string ISO completa, usa diretamente
-        const dataObj = new Date(data);
-        
-        // Verifica se a data é válida
-        if (isNaN(dataObj.getTime())) {
-            return 'Data inválida';
-        }
-        
-        // toLocaleDateString() formata a data no padrão brasileiro
-        return dataObj.toLocaleDateString('pt-BR');
-    } catch (error) {
-        console.error('Erro ao formatar data:', error);
-        return 'Data inválida';
-    }
-}
-
-/**
- * Função para formatar o horário para exibição
- * @param {string} horario - Horário no formato HH:MM
- * @returns {string} Horário formatado
- */
-function formatarHorario(horario) {
-    return horario.substring(0, 5); // Remove os segundos se existirem
-}
-
-/**
- * Função para carregar agendamentos da API
- */
-async function carregarAgendamentos() {
-    try {
-        // Faz requisição GET para a API
-        const response = await fetch(`${API_BASE_URL}/agendamentos`);
-        
-        if (response.ok) {
-            // Converte a resposta JSON para array
-            agendamentos = await response.json();
-            console.log('Agendamentos carregados:', agendamentos);
-            
-            // Exibe os agendamentos na tela
-            exibirAgendamentos();
-            
-            // Atualiza o calendário
-            renderizarCalendario();
-        } else {
-            console.error('Erro ao carregar agendamentos');
-            // Se der erro, mostra mensagem na tela
-            const listaElement = document.getElementById('listaAgendamentos');
-            listaElement.innerHTML = '<p>Erro ao carregar agendamentos. Verifique se o servidor está rodando.</p>';
-        }
-        
-    } catch (error) {
-        console.error('Erro ao conectar com a API:', error);
-        // Se der erro, mostra mensagem na tela
-        const listaElement = document.getElementById('listaAgendamentos');
-            listaElement.innerHTML = '<p>Erro ao conectar com o servidor. Verifique se o backend está rodando.</p>';
-    }
-}
-
-// ===== FUNCIONALIDADES DO CALENDÁRIO =====
-
-/**
- * Inicializa o calendário com os event listeners
- */
-function inicializarCalendario() {
-    // Event listeners para navegação do calendário
+// ===== EVENT LISTENERS =====
+function setupEventListeners() {
+    // Form submission
+    const form = document.getElementById('agendamentoForm');
+    form.addEventListener('submit', handleFormSubmit);
+    
+    // Calendar navigation
     document.getElementById('prevMonth').addEventListener('click', () => {
-        currentMonth--;
-        if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        }
-        renderizarCalendario();
+        navigateMonth(-1);
     });
     
     document.getElementById('nextMonth').addEventListener('click', () => {
-        currentMonth++;
-        if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-        }
-        renderizarCalendario();
+        navigateMonth(1);
     });
-    
-    // Renderiza o calendário inicial
-    renderizarCalendario();
 }
 
-/**
- * Renderiza o calendário na tela
- */
-function renderizarCalendario() {
+// ===== FORM HANDLING =====
+async function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    const formData = getFormData();
+    
+    if (!validateFormData(formData)) {
+        showToast('Por favor, preencha todos os campos!', 'warning');
+        return;
+    }
+    
+    try {
+        showLoading(true);
+        await createAgendamento(formData);
+        showToast('Agendamento criado com sucesso!', 'success');
+        clearForm();
+        await loadAgendamentos();
+        renderCalendar();
+    } catch (error) {
+        console.error('Erro ao criar agendamento:', error);
+        showToast('Erro ao criar agendamento. Tente novamente.', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function getFormData() {
+    return {
+        nomeCliente: document.getElementById('nomeCliente').value.trim(),
+        telefone: document.getElementById('telefone').value.trim(),
+        data: document.getElementById('data').value,
+        horario: document.getElementById('horario').value,
+        servico: document.getElementById('servico').value
+    };
+}
+
+function validateFormData(data) {
+    return data.nomeCliente && data.telefone && data.data && data.horario && data.servico;
+}
+
+function clearForm() {
+    document.getElementById('agendamentoForm').reset();
+    // Set default time again
+    const nextHour = new Date();
+    nextHour.setHours(nextHour.getHours() + 1);
+    document.getElementById('horario').value = nextHour.toTimeString().slice(0, 5);
+}
+
+// ===== API CALLS =====
+async function createAgendamento(data) {
+    const response = await fetch(`${API_BASE_URL}/agendamentos`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao criar agendamento');
+    }
+    
+    return await response.json();
+}
+
+async function loadAgendamentos() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/agendamentos`);
+        
+        if (response.ok) {
+            agendamentos = await response.json();
+            renderAgendamentosList();
+            renderCalendar();
+        } else {
+            throw new Error('Erro ao carregar agendamentos');
+        }
+    } catch (error) {
+        console.error('Erro ao carregar agendamentos:', error);
+        showEmptyState();
+    }
+}
+
+async function deleteAgendamento(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/agendamentos/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            showToast('Agendamento removido com sucesso!', 'success');
+            await loadAgendamentos();
+            renderCalendar();
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Erro ao remover agendamento');
+        }
+    } catch (error) {
+        console.error('Erro ao remover agendamento:', error);
+        showToast('Erro ao remover agendamento. Tente novamente.', 'error');
+    }
+}
+
+// ===== RENDERING =====
+function renderAgendamentosList() {
+    const container = document.getElementById('listaAgendamentos');
+    
+    if (agendamentos.length === 0) {
+        showEmptyState();
+        return;
+    }
+    
+    const html = agendamentos.map(agendamento => `
+        <div class="agendamento-item">
+            <h4>${agendamento.nome_cliente}</h4>
+            <div class="agendamento-details">
+                <div class="detail">
+                    <i class="fas fa-phone"></i>
+                    <strong>Telefone:</strong> ${agendamento.telefone}
+                </div>
+                <div class="detail">
+                    <i class="fas fa-calendar-day"></i>
+                    <strong>Data:</strong> ${formatDate(agendamento.data)}
+                </div>
+                <div class="detail">
+                    <i class="fas fa-clock"></i>
+                    <strong>Horário:</strong> ${formatTime(agendamento.horario)}
+                </div>
+                <div class="detail">
+                    <i class="fas fa-spa"></i>
+                    <strong>Serviço:</strong> ${agendamento.servico}
+                </div>
+            </div>
+            <div class="agendamento-actions">
+                <button class="btn btn-danger" onclick="confirmDelete(${agendamento.id})">
+                    <i class="fas fa-trash"></i>
+                    Remover
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+}
+
+function showEmptyState() {
+    const container = document.getElementById('listaAgendamentos');
+    container.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-calendar-plus"></i>
+            <h4>Nenhum agendamento encontrado</h4>
+            <p>Crie seu primeiro agendamento usando o formulário acima</p>
+        </div>
+    `;
+}
+
+// ===== CALENDAR =====
+function initializeCalendar() {
+    renderCalendar();
+}
+
+function navigateMonth(direction) {
+    currentMonth += direction;
+    
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    } else if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
+    
+    renderCalendar();
+}
+
+function renderCalendar() {
     const calendarGrid = document.getElementById('calendarGrid');
     const currentMonthElement = document.getElementById('currentMonth');
     
-    // Atualiza o título do mês
+    // Update month title
     const monthNames = [
         'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
     currentMonthElement.textContent = `${monthNames[currentMonth]} ${currentYear}`;
     
-    // Limpa o calendário
+    // Clear calendar
     calendarGrid.innerHTML = '';
     
-    // Adiciona os dias da semana
+    // Add weekdays header
     const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     weekdays.forEach(day => {
         const weekdayElement = document.createElement('div');
         weekdayElement.className = 'calendar-weekdays';
         weekdayElement.textContent = day;
-        weekdayElement.style.gridColumn = 'span 1';
-        weekdayElement.style.background = '#4caf50';
-        weekdayElement.style.color = 'white';
-        weekdayElement.style.padding = '10px';
-        weekdayElement.style.textAlign = 'center';
-        weekdayElement.style.fontWeight = 'bold';
         calendarGrid.appendChild(weekdayElement);
     });
     
-    // Calcula o primeiro dia do mês e quantos dias tem
+    // Calculate calendar days
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
     
-    // Adiciona dias do mês anterior (se necessário)
+    // Add previous month days
     const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     const prevLastDay = new Date(prevYear, prevMonth + 1, 0).getDate();
     
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-        const dayElement = criarElementoDia(prevLastDay - i, true);
+        const dayElement = createDayElement(prevLastDay - i, true);
         calendarGrid.appendChild(dayElement);
     }
     
-    // Adiciona dias do mês atual
+    // Add current month days
     for (let day = 1; day <= daysInMonth; day++) {
-        const dayElement = criarElementoDia(day, false);
+        const dayElement = createDayElement(day, false);
         calendarGrid.appendChild(dayElement);
     }
     
-    // Adiciona dias do próximo mês (se necessário)
+    // Add next month days
     const totalCells = calendarGrid.children.length;
-    const remainingCells = 42 - totalCells; // 6 semanas × 7 dias
+    const remainingCells = 42 - totalCells;
     
     for (let day = 1; day <= remainingCells; day++) {
-        const dayElement = criarElementoDia(day, true);
+        const dayElement = createDayElement(day, true);
         calendarGrid.appendChild(dayElement);
     }
 }
 
-/**
- * Cria um elemento de dia para o calendário
- * @param {number} day - Número do dia
- * @param {boolean} isOtherMonth - Se é de outro mês
- * @returns {HTMLElement} Elemento do dia
- */
-function criarElementoDia(day, isOtherMonth) {
+function createDayElement(day, isOtherMonth) {
     const dayElement = document.createElement('div');
     dayElement.className = 'calendar-day';
     
@@ -331,7 +315,7 @@ function criarElementoDia(day, isOtherMonth) {
         dayElement.classList.add('other-month');
     }
     
-    // Verifica se é hoje
+    // Check if it's today
     const today = new Date();
     if (!isOtherMonth && 
         day === today.getDate() && 
@@ -340,7 +324,7 @@ function criarElementoDia(day, isOtherMonth) {
         dayElement.classList.add('today');
     }
     
-    // Verifica se tem agendamentos neste dia
+    // Check for appointments
     const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const appointmentsOnDay = agendamentos.filter(ag => {
         const agDate = new Date(ag.data);
@@ -351,7 +335,7 @@ function criarElementoDia(day, isOtherMonth) {
         dayElement.classList.add('has-appointments');
     }
     
-    // Conteúdo do dia
+    // Day content
     const dayNumber = document.createElement('div');
     dayNumber.className = 'calendar-day-number';
     dayNumber.textContent = day;
@@ -364,37 +348,98 @@ function criarElementoDia(day, isOtherMonth) {
         dayElement.appendChild(appointmentsInfo);
     }
     
-    // Event listener para clicar no dia
+    // Click event
     dayElement.addEventListener('click', () => {
         if (!isOtherMonth) {
-            mostrarAgendamentosDia(dateString);
+            showDayAppointments(dateString, appointmentsOnDay);
         }
     });
     
     return dayElement;
 }
 
-/**
- * Mostra os agendamentos de um dia específico
- * @param {string} dateString - Data no formato YYYY-MM-DD
- */
-function mostrarAgendamentosDia(dateString) {
-    const appointmentsOnDay = agendamentos.filter(ag => {
-        const agDate = new Date(ag.data);
-        return agDate.toISOString().split('T')[0] === dateString;
-    });
-    
-    if (appointmentsOnDay.length === 0) {
-        alert('Nenhum agendamento neste dia.');
+function showDayAppointments(dateString, appointments) {
+    if (appointments.length === 0) {
+        showToast('Nenhum agendamento neste dia.', 'info');
         return;
     }
     
-    let message = `Agendamentos do dia ${formatarData(dateString)}:\n\n`;
-    appointmentsOnDay.forEach((appointment, index) => {
+    let message = `Agendamentos do dia ${formatDate(dateString)}:\n\n`;
+    appointments.forEach((appointment, index) => {
         message += `${index + 1}. ${appointment.nome_cliente}\n`;
-        message += `   Horário: ${formatarHorario(appointment.horario)}\n`;
+        message += `   Horário: ${formatTime(appointment.horario)}\n`;
         message += `   Serviço: ${appointment.servico}\n\n`;
     });
     
     alert(message);
+}
+
+// ===== UTILITY FUNCTIONS =====
+function formatDate(dateString) {
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('pt-BR');
+    } catch (error) {
+        return 'Data inválida';
+    }
+}
+
+function formatTime(timeString) {
+    return timeString.substring(0, 5);
+}
+
+function confirmDelete(id) {
+    if (confirm('Tem certeza que deseja remover este agendamento?')) {
+        deleteAgendamento(id);
+    }
+}
+
+// ===== UI COMPONENTS =====
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = show ? 'flex' : 'none';
+}
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icon = getToastIcon(type);
+    toast.innerHTML = `
+        <i class="${icon}"></i>
+        <span>${message}</span>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+function getToastIcon(type) {
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    return icons[type] || icons.info;
+}
+
+// ===== ERROR HANDLING =====
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    showToast('Ocorreu um erro inesperado. Recarregue a página.', 'error');
+});
+
+// ===== SERVICE WORKER (Future Enhancement) =====
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // Service worker registration can be added here for offline functionality
+        console.log('Service Worker support detected');
+    });
 }
