@@ -136,6 +136,64 @@ DB_PASSWORD=password123
 NODE_ENV=development
 ```
 
+## 🧪 **Testando a API**
+
+### **Base URL:**
+```
+http://localhost:3001/api
+```
+
+### **1. Health Check**
+```bash
+curl http://localhost:3001/api/health
+```
+**Resposta esperada:**
+```json
+{
+  "status": "OK",
+  "message": "Servidor funcionando!",
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+### **2. Listar Todos os Agendamentos**
+```bash
+curl http://localhost:3001/api/agendamentos
+```
+
+### **3. Buscar Agendamentos por Data**
+```bash
+curl http://localhost:3001/api/agendamentos/2024-01-20
+```
+
+### **4. Criar Novo Agendamento**
+```bash
+curl -X POST http://localhost:3001/api/agendamentos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nomeCliente": "Maria Silva",
+    "telefone": "11999999999",
+    "data": "2024-01-25",
+    "horario": "14:00",
+    "servico": "Corte de cabelo"
+  }'
+```
+
+### **5. Remover Agendamento**
+```bash
+curl -X DELETE http://localhost:3001/api/agendamentos/1
+```
+
+### **📊 Resumo dos Endpoints:**
+
+| **Método** | **Endpoint** | **Descrição** |
+|------------|-------------|---------------|
+| `GET` | `/api/health` | Status do servidor |
+| `GET` | `/api/agendamentos` | Lista todos os agendamentos |
+| `GET` | `/api/agendamentos/{data}` | Lista por data específica |
+| `POST` | `/api/agendamentos` | Cria novo agendamento |
+| `DELETE` | `/api/agendamentos/{id}` | Remove agendamento |
+
 ## 🐳 **Comandos Docker Úteis**
 
 ```bash
