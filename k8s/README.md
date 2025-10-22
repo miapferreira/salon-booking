@@ -118,30 +118,104 @@ kubectl wait --namespace cert-manager \
   --timeout=300s
 ```
 
-#### 3. Configurar ClusterIssuers
+#### 3. EBS CSI Driver (Obrigatório para persistência)
+```bash
+# Criar policy IAM para EBS CSI Driver
+aws iam create-policy \
+  --policy-name EKS-EBS-CSI-Policy \
+  --policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:CreateVolume",
+          "ec2:DeleteVolume",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeVolumeAttribute",
+          "ec2:DescribeVolumeStatus",
+          "ec2:DescribeVolumesModifications",
+          "ec2:ModifyVolume",
+          "ec2:AttachVolume",
+          "ec2:DetachVolume",
+          "ec2:CreateSnapshot",
+          "ec2:DeleteSnapshot",
+          "ec2:DescribeSnapshots",
+          "ec2:DescribeSnapshotAttribute",
+          "ec2:CreateTags",
+          "ec2:DeleteTags",
+          "ec2:DescribeTags"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }'
+
+# Obter OIDC ID do cluster
+OIDC_ID=$(aws eks describe-cluster --name eks-cluster --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
+
+# Criar role IAM
+aws iam create-role \
+  --role-name EKS-EBS-CSI-Role \
+  --assume-role-policy-document "{
+    \"Version\": \"2012-10-17\",
+    \"Statement\": [
+      {
+        \"Effect\": \"Allow\",
+        \"Principal\": {
+          \"Federated\": \"arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/$OIDC_ID\"
+        },
+        \"Action\": \"sts:AssumeRoleWithWebIdentity\",
+        \"Condition\": {
+          \"StringEquals\": {
+            \"oidc.eks.us-east-1.amazonaws.com/id/$OIDC_ID:sub\": \"system:serviceaccount:kube-system:ebs-csi-controller-sa\",
+            \"oidc.eks.us-east-1.amazonaws.com/id/$OIDC_ID:aud\": \"sts.amazonaws.com\"
+          }
+        }
+      }
+    ]
+  }"
+
+# Anexar policy à role
+aws iam attach-role-policy \
+  --role-name EKS-EBS-CSI-Role \
+  --policy-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/EKS-EBS-CSI-Policy
+
+# Instalar EBS CSI Driver
+kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.19"
+
+# Anotar ServiceAccount com role IAM
+kubectl annotate serviceaccount ebs-csi-controller-sa -n kube-system \
+  eks.amazonaws.com/role-arn=arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/EKS-EBS-CSI-Role
+
+# Aguardar EBS CSI Controller ficar pronto
+kubectl wait --for=condition=ready pod -l app=ebs-csi-controller -n kube-system --timeout=300s
+```
+
+#### 4. Configurar ClusterIssuers
 ```bash
 kubectl apply -f cert/production-issuer.yaml
 kubectl apply -f cert/staging-issuer.yaml
 ```
 
-#### 4. Deploy da Aplicação
+#### 5. Deploy da Aplicação
 ```bash
-# Configurações e secrets
-kubectl apply -f manifests/salon-booking-configmap.yaml
-kubectl apply -f manifests/salon-booking-secrets.yaml
+# Deploy completo usando Kustomize (recomendado)
+kubectl apply -k k8s/
 
-# PostgreSQL
-kubectl apply -f manifests/postgres-pvc.yaml
-kubectl apply -f manifests/postgres-deployment.yaml
-kubectl apply -f manifests/postgres-service.yaml
-
-# Aplicação principal
-kubectl apply -f manifests/salon-booking-deployment.yaml
-kubectl apply -f manifests/salon-booking-service.yaml
-
-# Ingress
-kubectl apply -f manifests/salon-booking-ingress.yaml
+# Verificar status
+kubectl get pods
+kubectl get services
+kubectl get ingress
+kubectl get pvc
+kubectl get certificate
 ```
+
+**✅ Resultado esperado:**
+- ✅ Todos os pods em status `Running`
+- ✅ PVC em status `Bound` (persistência funcionando)
+- ✅ Certificado TLS sendo emitido automaticamente
+- ✅ Aplicação acessível via HTTPS
 
 ## 🔧 Configurações
 
@@ -246,6 +320,39 @@ kubectl describe pod -l app=salon-booking
 
 ## 🔍 Troubleshooting
 
+### 🚨 **ERROS ENCONTRADOS E SOLUÇÕES**
+
+#### **ERRO 1: PVC não consegue fazer bind**
+**Sintoma:** `PVC Pending` com erro `UnauthorizedOperation: You are not authorized to perform: ec2:CreateVolume`
+**Causa:** EBS CSI Driver sem permissões IAM
+**Solução:**
+```bash
+# Seguir seção "EBS CSI Driver" no README
+# Criar policy IAM e role com permissões corretas
+aws iam create-policy --policy-name EKS-EBS-CSI-Policy --policy-document file://ebs-policy.json
+aws iam create-role --role-name EKS-EBS-CSI-Role --assume-role-policy-document file://trust-policy.json
+```
+
+#### **ERRO 2: Certificado TLS não é emitido**
+**Sintoma:** `Certificate False` com `challenge pending`
+**Causa:** Challenge HTTP-01 não consegue validar domínio
+**Solução:**
+```bash
+# Usar staging primeiro para validar
+kubectl delete ingress salon-booking-ingress
+# Aplicar Ingress com staging issuer
+# Depois trocar para produção
+```
+
+#### **ERRO 3: Conflito com certificado ACM**
+**Sintoma:** `NET::ERR_CERT_AUTHORITY_INVALID` mesmo com certificado válido no ACM
+**Causa:** Tentativa de usar certificado ACM com nginx-ingress
+**Solução:**
+```bash
+# Remover certificado ACM ou usar AWS Load Balancer Controller
+# Ou usar cert-manager com Let's Encrypt (recomendado)
+```
+
 ### Problemas Comuns
 
 #### 1. Ingress não funciona
@@ -337,11 +444,21 @@ kubectl rollout undo deployment/salon-booking --to-revision=2
 ### Remover Aplicação
 ```bash
 # Remover manifestos
-kubectl delete -f manifests/
-kubectl delete -f cert/
+kubectl delete -k k8s/
 
 # Remover PVC (cuidado - apaga dados!)
 kubectl delete pvc postgres-pvc
+```
+
+### Remover EBS CSI Driver
+```bash
+# Remover EBS CSI Driver
+kubectl delete -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.19"
+
+# Remover recursos IAM (opcional)
+aws iam detach-role-policy --role-name EKS-EBS-CSI-Role --policy-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/EKS-EBS-CSI-Policy
+aws iam delete-role --role-name EKS-EBS-CSI-Role
+aws iam delete-policy --policy-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/EKS-EBS-CSI-Policy
 ```
 
 ### Remover Cluster

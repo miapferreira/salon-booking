@@ -10,4 +10,4 @@ spec:
   resources:
     requests:
       storage: 10Gi  # 10GB de armazenamento
-  # storageClassName: gp2  # Descomente se usar EKS com storage class específica
+  storageClassName: gp2  # Usando StorageClass padrão do EKS
