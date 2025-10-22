@@ -13,7 +13,7 @@ Sistema completo de agendamento desenvolvido como **microserviço** usando Docke
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │   Backend       │    │   Database      │
 │   (Nginx)       │───▶│   (Node.js)     │───▶│   (PostgreSQL)  │
-│   Porta 80      │    │   Porta 3000    │    │   Porta 5432    │
+│   Porta 80      │    │   Porta 3001    │    │   Porta 5432    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -66,7 +66,7 @@ docker-compose logs -f
 
 ### **Acessar o Sistema:**
 - **Frontend:** http://localhost:80
-- **API:** http://localhost:3000/api
+- **API:** http://localhost:3001/api
 - **Banco de dados:** localhost:5432
 
 ## 🔧 **Serviços do Sistema**
@@ -78,7 +78,7 @@ docker-compose logs -f
 
 ### **2. Backend (Node.js)**
 - **Função:** API REST para gerenciar agendamentos
-- **Porta:** 3000
+- **Porta:** 3001
 - **Container:** salon-backend
 - **Endpoints:**
   - `GET /api/health` - Status do servidor
@@ -170,7 +170,7 @@ docker-compose down -v
 ```bash
 # Verificar o que está usando a porta
 lsof -i :80
-lsof -i :3000
+lsof -i :3001
 lsof -i :5432
 
 # Parar serviços conflitantes

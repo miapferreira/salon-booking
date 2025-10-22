@@ -15,7 +15,7 @@ require('dotenv').config();
 
 // Cria a aplicação Express
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware - são funções que executam antes das rotas
 app.use(cors()); // Permite requisições de outros domínios

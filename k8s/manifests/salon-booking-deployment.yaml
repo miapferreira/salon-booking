@@ -20,13 +20,13 @@ spec:
       - name: salon-booking
         image: miapferreira/salon-booking:latest
         ports:
-        - containerPort: 3000
+        - containerPort: 3001
           name: http
         env:
         - name: NODE_ENV
           value: "production"
         - name: PORT
-          value: "3000"
+          value: "3001"
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
@@ -62,13 +62,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /api/health
-            port: 3000
+            port: 3001
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /api/health
-            port: 3000
+            port: 3001
           initialDelaySeconds: 5
           periodSeconds: 5
         # Configurações de segurança

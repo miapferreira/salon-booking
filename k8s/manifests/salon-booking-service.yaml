@@ -12,7 +12,7 @@ spec:
   ports:
   - name: http
     port: 80
-    targetPort: 3000
+    targetPort: 3001
     protocol: TCP
   # Configurações de sessão (opcional para aplicações stateful)
   sessionAffinity: None
