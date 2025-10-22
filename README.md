@@ -213,6 +213,7 @@ docker-compose up --build backend
 docker-compose down -v
 ```
 
+
 ## 📈 **Próximos Passos**
 
 - [ ] Adicionar autenticação

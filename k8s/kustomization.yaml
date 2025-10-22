@@ -19,11 +19,15 @@ resources:
   - manifests/postgres-pvc.yaml
   - manifests/postgres-deployment.yaml
   - manifests/postgres-service.yaml
+  - manifests/postgres-init-script.yaml
   
   # Aplicação principal
   - manifests/salon-booking-deployment.yaml
   - manifests/salon-booking-service.yaml
   - manifests/salon-booking-ingress.yaml
+  
+  # Autoscaling
+  - manifests/salon-booking-hpa.yaml
 
 namespace: default
 
