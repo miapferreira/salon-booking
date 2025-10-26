@@ -136,6 +136,88 @@ DB_PASSWORD=password123
 NODE_ENV=development
 ```
 
+## 🏗️ **Build da Imagem Docker**
+
+### **Pré-requisitos:**
+```bash
+# 1. Docker Desktop rodando
+docker info
+
+# 2. Login no Docker Hub
+docker login
+```
+
+### **Comandos Manuais:**
+
+#### **1. Build da Imagem**
+```bash
+# Buildar imagem para arquitetura AMD64 (compatível com EKS)
+docker build --platform linux/amd64 -t miapferreira/salon-booking:v1.0.0 .
+
+# Buildar também a tag latest
+docker build --platform linux/amd64 -t miapferreira/salon-booking:latest .
+```
+
+#### **2. Verificar a Imagem**
+```bash
+# Verificar se a imagem foi criada
+docker images | grep salon-booking
+
+# Verificar arquitetura da imagem
+docker inspect miapferreira/salon-booking:latest | grep Architecture
+# Deve mostrar: "Architecture": "amd64"
+```
+
+#### **3. Testar Localmente**
+```bash
+# Rodar a imagem localmente (via emulação no Mac)
+docker run -p 3001:3001 miapferreira/salon-booking:latest
+
+# Testar se está funcionando
+curl http://localhost:3001/api/health
+```
+
+#### **4. Enviar para Docker Hub**
+```bash
+# Push da versão específica
+docker push miapferreira/salon-booking:v1.0.0
+
+# Push da tag latest
+docker push miapferreira/salon-booking:latest
+```
+
+#### **5. Deploy no EKS**
+```bash
+# Reiniciar deployment para usar nova imagem
+kubectl rollout restart deployment/salon-booking
+
+# Verificar status
+kubectl get pods -l app=salon-booking
+kubectl logs -l app=salon-booking
+```
+
+### **Comandos Úteis para Debug:**
+
+```bash
+# Ver histórico de builds
+docker history miapferreira/salon-booking:latest
+
+# Entrar na imagem para debug
+docker run -it --entrypoint sh miapferreira/salon-booking:latest
+
+# Verificar tamanho da imagem
+docker images miapferreira/salon-booking --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+
+# Limpar imagens antigas
+docker image prune -f
+```
+
+### **Script Automatizado:**
+```bash
+# Para builds rápidos, use o script
+./build-simple.sh v1.0.0
+```
+
 ## 🧪 **Testando a API**
 
 ### **Base URL:**
