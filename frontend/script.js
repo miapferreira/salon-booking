@@ -190,7 +190,7 @@ function renderAgendamentosList() {
     }
     
     const html = agendamentos.map(agendamento => `
-        <div class="agendamento-item">
+            <div class="agendamento-item">
             <h4>${agendamento.nome_cliente}</h4>
             <div class="agendamento-details">
                 <div class="detail">
@@ -229,8 +229,8 @@ function showEmptyState() {
             <i class="fas fa-calendar-plus"></i>
             <h4>Nenhum agendamento encontrado</h4>
             <p>Crie seu primeiro agendamento usando o formulário acima</p>
-        </div>
-    `;
+            </div>
+        `;
 }
 
 // ===== CALENDAR =====
